@@ -1,0 +1,13 @@
+STIG WN10-CC-000005 - # Disable camera access from the lock screen
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
+
+# Create the key if it doesn’t exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Set NoLockScreenCamera to 1 (disable camera)
+Set-ItemProperty -Path $RegPath -Name "NoLockScreenCamera" -Value 1 -Type DWord
+
+# Force group policy update
+gpupdate /force
