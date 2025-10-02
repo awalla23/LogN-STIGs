@@ -1,0 +1,18 @@
+# Remediate WN10-SO-000250 - UAC must prompt for consent on the secure desktop
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Enable Secure Desktop for UAC prompts
+# 0 = Disabled (not compliant)
+# 1 = Enabled (compliant)
+Set-ItemProperty -Path $RegPath -Name "PromptOnSecureDesktop" -Value 1 -Type DWord -Force
+
+Write-Host "UAC prompts now appear on the secure desktop (PromptOnSecureDesktop = 1)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" |
+    Select-Object PromptOnSecureDesktop
