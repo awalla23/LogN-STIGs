@@ -1,0 +1,30 @@
+# Remediate WN10-CC-000327 - Enable PowerShell Transcription
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Enable PowerShell transcription
+# EnableTranscripting = 1 → Enabled
+Set-ItemProperty -Path $RegPath -Name "EnableTranscripting" -Value 1 -Type DWord -Force
+
+# Optional: Set output directory for transcription logs (change path to your log collection folder)
+# Example: C:\Transcripts
+$TranscriptDir = "C:\Transcripts"
+
+if (!(Test-Path $TranscriptDir)) {
+    New-Item -Path $TranscriptDir -ItemType Directory -Force | Out-Null
+}
+
+Set-ItemProperty -Path $RegPath -Name "OutputDirectory" -Value $TranscriptDir -Type String -Force
+
+# Optional: Include invocation headers (helps auditing)
+Set-ItemProperty -Path $RegPath -Name "IncludeInvocationHeader" -Value 1 -Type DWord -Force
+
+Write-Host "PowerShell Transcription enabled. Logs will be written to $TranscriptDir"
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription" |
+    Select-Object EnableTranscripting, OutputDirectory, IncludeInvocationHeader
