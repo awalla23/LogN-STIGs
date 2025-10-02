@@ -1,0 +1,18 @@
+# Remediate WN10-SO-000245 - Enable UAC Admin Approval Mode for built-in Administrator
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Enable Admin Approval Mode for the built-in Administrator
+# 0 = Disabled (not compliant)
+# 1 = Enabled (compliant)
+Set-ItemProperty -Path $RegPath -Name "FilterAdministratorToken" -Value 1 -Type DWord -Force
+
+Write-Host "UAC Admin Approval Mode enabled for the built-in Administrator (FilterAdministratorToken = 1)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" |
+    Select-Object FilterAdministratorToken
