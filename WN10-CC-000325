@@ -1,0 +1,21 @@
+# Remediate WN10-CC-000325 - Prevent automatic sign-in with last interactive user
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# DontDisplayLastUserName values:
+# 0 = Show last signed-in user
+# 1 = Do not display last signed-in user
+Set-ItemProperty -Path $RegPath -Name "DontDisplayLastUserName" -Value 1 -Type DWord -Force
+
+# Also disable AutoAdminLogon if it was enabled
+Set-ItemProperty -Path $RegPath -Name "AutoAdminLogon" -Value 0 -Type String -Force
+
+Write-Host "Automatic sign-in disabled. Last interactive user will not be displayed at logon."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" |
+    Select-Object DontDisplayLastUserName, AutoAdminLogon
