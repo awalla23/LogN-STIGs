@@ -1,0 +1,29 @@
+# Prevent users from changing installation options
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer"
+$regName = "EnableUserControl"
+$regValue = 0   # 0 = Prevent changes (compliant), 1 = Allow changes (non-compliant)
+
+# Create key if missing
+If (!(Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
+
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer"
+$regName = "EnableUserControl"
+
+if (Test-Path $regPath) {
+    $value = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regName
+    if ($value -eq 0) {
+        Write-Output "✅ Users cannot change installation options (STIG compliant)."
+    } else {
+        Write-Output "❌ Users CAN change installation options (non-compliant)."
+    }
+} else {
+    Write-Output "❌ Registry path not found. Policy may not be applied."
+}
