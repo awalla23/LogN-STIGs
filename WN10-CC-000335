@@ -1,0 +1,17 @@
+# Remediate WN10-CC-000335 - Disable Basic authentication for WinRM
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Disable Basic authentication
+# 0 = Disabled, 1 = Enabled
+Set-ItemProperty -Path $RegPath -Name "AllowBasic" -Value 0 -Type DWord -Force
+
+Write-Host "WinRM Basic authentication has been disabled (AllowBasic = 0)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WinRM\Service" | 
+    Select-Object AllowBasic
