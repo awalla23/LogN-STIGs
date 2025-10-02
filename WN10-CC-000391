@@ -1,0 +1,15 @@
+# Disable Internet Explorer 11 as a standalone browser
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main"
+$regName = "DisableIE11"
+$regValue = 1
+
+# Create key if missing
+If (!(Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
