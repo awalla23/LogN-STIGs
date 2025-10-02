@@ -1,0 +1,18 @@
+# Remediate WN10-SO-000100 - Enforce SMB client packet signing
+
+$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"
+
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# RequireSecuritySignature = 1 → client must perform SMB packet signing
+Set-ItemProperty -Path $RegPath -Name "RequireSecuritySignature" -Value 1 -Type DWord -Force
+
+# EnableSecuritySignature = 1 → client will attempt signing on all connections
+Set-ItemProperty -Path $RegPath -Name "EnableSecuritySignature" -Value 1 -Type DWord -Force
+
+Write-Host "SMB client configured to always perform packet signing (RequireSecuritySignature = 1, EnableSecuritySignature = 1)."
+
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters" |
+    Select-Object RequireSecuritySignature, EnableSecuritySignature
