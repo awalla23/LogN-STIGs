@@ -1,0 +1,17 @@
+# Remediate WN10-SO-000080 - Configure Windows legal notice caption
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Set the legal notice caption (title of the dialog box)
+# Replace the string below with your organization's approved title
+Set-ItemProperty -Path $RegPath -Name "LegalNoticeCaption" -Value "Authorized Use Only" -Type String -Force
+
+Write-Host "Legal notice caption set under Winlogon."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" |
+    Select-Object LegalNoticeCaption
