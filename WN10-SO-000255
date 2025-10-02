@@ -1,0 +1,24 @@
+# Remediate WN10-SO-000255 - UAC must automatically deny elevation requests
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# ConsentPromptBehaviorAdmin values:
+# 0 = Elevate without prompting
+# 1 = Prompt for credentials on secure desktop
+# 2 = Prompt for consent on secure desktop
+# 3 = Prompt for credentials
+# 4 = Prompt for consent
+# 5 = Prompt for consent for non-Windows binaries
+# 6 = Automatically deny elevation requests  (Required by STIG)
+
+Set-ItemProperty -Path $RegPath -Name "ConsentPromptBehaviorAdmin" -Value 6 -Type DWord -Force
+
+Write-Host "UAC configured to automatically deny elevation requests (ConsentPromptBehaviorAdmin = 6)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" |
+    Select-Object ConsentPromptBehaviorAdmin
