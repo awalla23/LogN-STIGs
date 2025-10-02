@@ -1,0 +1,15 @@
+# Remediate WN10-CC-000197 - Disable Microsoft Consumer Experiences
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
+
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Disable consumer features
+Set-ItemProperty -Path $RegPath -Name "DisableWindowsConsumerFeatures" -Value 1 -Type DWord -Force
+
+Write-Host "Microsoft Consumer Experiences disabled (DisableWindowsConsumerFeatures = 1)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" |
+    Select-Object DisableWindowsConsumerFeatures
