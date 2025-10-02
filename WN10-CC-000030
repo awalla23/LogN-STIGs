@@ -1,0 +1,19 @@
+# Remediate WN10-CC-000030 - Disable Autoplay for non-volume devices
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Set Turn off Autoplay (All drives)
+# 0 = Disabled, 1 = Enabled (on drives not of volume type), 255 = All drives
+Set-ItemProperty -Path $RegPath -Name "NoDriveTypeAutoRun" -Value 255 -Type DWord
+
+# Turn off Autoplay policy
+Set-ItemProperty -Path $RegPath -Name "NoAutoplay" -Value 1 -Type DWord
+
+Write-Host "Autoplay disabled for non-volume devices (all drives)."
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" | 
+    Select-Object NoDriveTypeAutoRun, NoAutoplay
