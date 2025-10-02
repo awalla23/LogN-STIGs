@@ -1,0 +1,19 @@
+# Remediate WN10-CC-000165 - Restrict unauthenticated RPC clients
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# RestrictRemoteClients values:
+# 0 = None (default, no restrictions)
+# 1 = Authenticated clients only
+# 2 = Authenticated + unauthenticated clients (legacy compatibility)
+Set-ItemProperty -Path $RegPath -Name "RestrictRemoteClients" -Value 1 -Type DWord -Force
+
+Write-Host "Restricted unauthenticated RPC clients (RestrictRemoteClients = 1)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc" |
+    Select-Object RestrictRemoteClients
