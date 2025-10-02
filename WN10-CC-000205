@@ -1,0 +1,22 @@
+# Remediate WN10-CC-000205 - Configure Telemetry level (Disable Full)
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# AllowTelemetry values:
+# 0 = Security (Enterprise/Education only)
+# 1 = Basic
+# 2 = Enhanced (deprecated)
+# 3 = Full (not allowed by STIG)
+# STIG requires 0 (Security) if available, otherwise 1 (Basic)
+
+Set-ItemProperty -Path $RegPath -Name "AllowTelemetry" -Value 1 -Type DWord -Force
+
+Write-Host "Telemetry configured to Basic (AllowTelemetry = 1). Full telemetry disabled."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" |
+    Select-Object AllowTelemetry
