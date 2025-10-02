@@ -1,0 +1,20 @@
+# Remediate WN10-CC-000170 - Disallow Microsoft accounts
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# NoConnectedUser values:
+# 0 = Users can add and log on with Microsoft accounts
+# 1 = Users can’t add Microsoft accounts
+# 3 = Users can’t add or log on with Microsoft accounts
+
+Set-ItemProperty -Path $RegPath -Name "NoConnectedUser" -Value 3 -Type DWord -Force
+
+Write-Host "Microsoft account logon disabled (NoConnectedUser = 3)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" | 
+    Select-Object NoConnectedUser
