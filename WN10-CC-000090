@@ -1,0 +1,29 @@
+# Set Group Policy refresh interval for computers (90 minutes)
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+$regName = "GroupPolicyRefreshTime"
+$regValue = 90   # in minutes
+
+# Create key if it doesn’t exist
+If (!(Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
+
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+$regName = "GroupPolicyRefreshTime"
+
+if (Test-Path $regPath) {
+    $value = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regName
+    if ($value -le 90) {
+        Write-Output "✅ Group Policy refresh is set to $value minutes (STIG compliant)."
+    } else {
+        Write-Output "❌ Group Policy refresh is set to $value minutes (non-compliant)."
+    }
+} else {
+    Write-Output "❌ Registry path not found. Policy may not be applied."
+}
