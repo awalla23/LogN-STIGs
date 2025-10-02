@@ -1,0 +1,29 @@
+# Enable logging of command-line arguments in process creation events
+$regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
+$regName = "ProcessCreationIncludeCmdLine_Enabled"
+$regValue = 1   # 1 = Enabled, 0 = Disabled
+
+# Create registry path if missing
+If (!(Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
+
+$regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
+$regName = "ProcessCreationIncludeCmdLine_Enabled"
+
+if (Test-Path $regPath) {
+    $value = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regName
+    if ($value -eq 1) {
+        Write-Output "✅ Command-line logging for process creation is ENABLED (STIG compliant)."
+    } else {
+        Write-Output "❌ Command-line logging for process creation is DISABLED (non-compliant)."
+    }
+} else {
+    Write-Output "❌ Registry path not found. Policy may not be applied."
+}
