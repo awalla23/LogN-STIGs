@@ -1,0 +1,29 @@
+# Prevent users from ignoring Windows Defender AV prompts
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\UX Configuration"
+$regName = "Notification_Suppress"
+$regValue = 0   # 0 = Do NOT allow dismissal (compliant), 1 = allow dismissal (non-compliant)
+
+# Create key if it doesn’t exist
+If (!(Test-Path $regPath)) {
+    New-Item -Path $regPath -Force | Out-Null
+}
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
+
+$regPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\UX Configuration"
+$regName = "Notification_Suppress"
+
+if (Test-Path $regPath) {
+    $value = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regName
+    if ($value -eq 0) {
+        Write-Output "✅ Users cannot ignore Defender AV prompts (STIG compliant)."
+    } else {
+        Write-Output "❌ Users CAN ignore Defender AV prompts (non-compliant)."
+    }
+} else {
+    Write-Output "❌ Registry path not found. Policy may not be applied."
+}
