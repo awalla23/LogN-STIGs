@@ -1,0 +1,25 @@
+# Remediate WN10-UR-000030 - Configure "Back up files and directories" user right
+
+# Temp path for export
+$CfgPath = "C:\Windows\Temp\secpol_backup.cfg"
+
+# Export current security policy
+secedit /export /cfg $CfgPath
+
+# Replace SeBackupPrivilege with Administrators (and Backup Operators if desired)
+(Get-Content $CfgPath).ForEach{
+    if ($_ -match "^SeBackupPrivilege") {
+        "SeBackupPrivilege = *S-1-5-32-544"   # BUILTIN\Administrators
+    }
+    else { $_ }
+} | Set-Content $CfgPath
+
+# Apply updated policy
+secedit /configure /db C:\Windows\security\local.sdb /cfg $CfgPath /areas USER_RIGHTS
+
+# Clean up
+Remove-Item $CfgPath -Force
+
+Write-Host "Configured 'Back up files and directories' (SeBackupPrivilege) for Administrators only."
+
+whoami /priv | findstr SeBackupPrivilege
