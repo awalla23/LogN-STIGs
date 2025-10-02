@@ -1,0 +1,13 @@
+# Enforce password complexity via registry (LSA policy)
+$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# 0 = Disabled, 1 = Enabled
+Set-ItemProperty -Path $RegPath -Name "PasswordComplexity" -Value 1 -Type DWord -Force
+
+Write-Host "Password complexity requirement enabled (PasswordComplexity = 1)."
+
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" | Select-Object PasswordComplexity
