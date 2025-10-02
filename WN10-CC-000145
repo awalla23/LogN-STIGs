@@ -1,0 +1,12 @@
+# Registry-based remediation for WN10-CC-000145
+
+$RegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Power"
+
+# Set both AC and DC values
+Set-ItemProperty -Path $RegPath -Name "CsEnabled" -Value 0 -Type DWord -Force
+Set-ItemProperty -Path $RegPath -Name "PromptPasswordOnIdle" -Value 1 -Type DWord -Force
+
+Write-Host "Password prompt on wake enforced via registry."
+
+Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Power" | 
+    Select-Object CsEnabled, PromptPasswordOnIdle
