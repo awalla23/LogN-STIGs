@@ -1,0 +1,18 @@
+# Remediate WN10-CC-000365 - Disable convenience PIN sign-in
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Disable Windows Hello PIN sign-in
+# 0 = Allow, 1 = Block
+Set-ItemProperty -Path $RegPath -Name "AllowDomainPINLogon" -Value 0 -Type DWord -Force
+Set-ItemProperty -Path $RegPath -Name "AllowConvenienceLogon" -Value 0 -Type DWord -Force
+
+Write-Host "Convenience PIN sign-in (Windows Hello PIN) disabled."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" | 
+    Select-Object AllowDomainPINLogon, AllowConvenienceLogon
