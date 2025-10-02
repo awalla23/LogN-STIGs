@@ -1,0 +1,24 @@
+# Set LAN Manager authentication level to NTLMv2 only, refuse LM & NTLM
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+$regName = "LmCompatibilityLevel"
+$regValue = 5   # 5 = STIG compliant
+
+# Apply setting
+Set-ItemProperty -Path $regPath -Name $regName -Value $regValue -Type DWord
+
+# Verify
+Get-ItemProperty -Path $regPath | Select-Object $regName
+
+$regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+$regName = "LmCompatibilityLevel"
+
+if (Test-Path $regPath) {
+    $value = Get-ItemProperty -Path $regPath -Name $regName -ErrorAction SilentlyContinue | Select-Object -ExpandProperty $regName
+    if ($value -eq 5) {
+        Write-Output "✅ LAN Manager auth level is set to NTLMv2 only (STIG compliant)."
+    } else {
+        Write-Output "❌ LAN Manager auth level is $value (non-compliant)."
+    }
+} else {
+    Write-Output "❌ Registry path not found. Policy may not be applied."
+}
