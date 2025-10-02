@@ -1,0 +1,18 @@
+# Remediate WN10-CC-000175 - Disable Application Compatibility Program Inventory
+
+$RegPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Disable Inventory
+# 0 = Enabled (default, not compliant)
+# 1 = Disabled (compliant)
+Set-ItemProperty -Path $RegPath -Name "DisableInventory" -Value 1 -Type DWord -Force
+
+Write-Host "Application Compatibility Program Inventory disabled (DisableInventory = 1)."
+
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat" |
+    Select-Object DisableInventory
