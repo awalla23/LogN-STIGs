@@ -1,0 +1,24 @@
+# Remediate WN10-CC-000185 - Disable Autorun/Autoplay
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+
+# Create the key if it does not exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Set NoDriveTypeAutoRun to 255 (0xFF) -> Disable Autorun on all drives
+Set-ItemProperty -Path $RegPath -Name "NoDriveTypeAutoRun" -Value 255 -Type DWord
+
+# Set NoAutorun to 1 -> Fully disable Autorun
+Set-ItemProperty -Path $RegPath -Name "NoAutorun" -Value 1 -Type DWord
+
+# Force group policy update
+gpupdate /force
+
+Write-Host "Autorun and Autoplay have been disabled per STIG requirement WN10-CC-000185."
+
+# Verify Autorun/Autoplay is disabled
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
+
+Get-ItemProperty -Path $RegPath | Select-Object NoDriveTypeAutoRun, NoAutorun
