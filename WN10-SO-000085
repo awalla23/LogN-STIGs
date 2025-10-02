@@ -1,0 +1,22 @@
+# Remediate WN10-SO-000085 - Configure Windows legal notice text
+
+$RegPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+# Create the key if it doesn't exist
+if (!(Test-Path $RegPath)) {
+    New-Item -Path $RegPath -Force | Out-Null
+}
+
+# Set the legal notice text
+# Replace the text below with your organization's approved legal banner
+$LegalText = @"
+This computer system is the property of [Your Organization].
+Unauthorized access or use is prohibited and may be subject to disciplinary action and/or criminal prosecution.
+By using this system, you consent to monitoring and auditing.
+"@
+
+Set-ItemProperty -Path $RegPath -Name "LegalNoticeText" -Value $LegalText -Type String -Force
+
+Write-Host "Legal notice text configured under Winlogon."
+
+(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System").LegalNoticeText
